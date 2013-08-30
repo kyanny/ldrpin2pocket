@@ -5,7 +5,7 @@
     $ export CONSUMER_KEY=XXXX
     $ export ACCESS_TOKEN=XXXX
     $ bundle install
-    $ ruby ldr2pocket.rb
+    $ bundle exec ruby ldr2pocket.rb
 
 # Heroku Scheduler
 
@@ -16,5 +16,7 @@
     $ heroku config:set LIVEDOOR_PASSWORD=XXXX
     $ heroku config:set CONSUMER_KEY=XXXX
     $ heroku config:set ACCESS_TOKEN=XXXX
+    
+    $ bundle exec ruby ldr2pocket.rb
 
 LDR mechanize code is from https://gist.github.com/yoggy/775768.
