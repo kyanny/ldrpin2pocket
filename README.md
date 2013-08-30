@@ -7,4 +7,14 @@
     $ bundle install
     $ ruby ldr2pocket.rb
 
+# Heroku Scheduler
+
+    $ heroku apps:create ldr2pocket
+    $ git push heroku master
+    $ heroku addons:add scheduler:standard
+    $ heroku config:set LIVEDOOR_ID=XXXX
+    $ heroku config:set LIVEDOOR_PASSWORD=XXXX
+    $ heroku config:set CONSUMER_KEY=XXXX
+    $ heroku config:set ACCESS_TOKEN=XXXX
+
 LDR mechanize code is from https://gist.github.com/yoggy/775768.
