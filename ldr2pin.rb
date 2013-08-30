@@ -1,9 +1,9 @@
 #!/usr/bin/ruby
 
 require 'mechanize'
+require 'net/https'
 require 'json'
-require 'cgi'
-require 'open-uri'
+require 'uri'
 
 class LDR
   def initialize(livedoor_id, password)
@@ -26,10 +26,8 @@ class LDR
   end
 
   def clear_all_pins
-    unless post_error
-      api_key = @agent.cookie_jar.jar['reader.livedoor.com']['/']['reader_sid'].value
-      @agent.post('http://reader.livedoor.com/api/pin/clear', 'ApiKey' => api_key)
-    end
+    api_key = @agent.cookie_jar.jar['reader.livedoor.com']['/']['reader_sid'].value
+    @agent.post('http://reader.livedoor.com/api/pin/clear', 'ApiKey' => api_key)
   end
 
   def each_pin(&block)
@@ -40,23 +38,30 @@ class LDR
 end
 
 class Pocket
+  def initialize(consumer_key, access_token)
+    @consumer_key = consumer_key
+    @access_token = access_token
+  end
+
   def add(url)
-    p url
+    Net::HTTP.post_form(URI('https://getpocket.com/v3/add'), params(url: url))
+  end
+
+  def params(params)
+    { consumer_key: @consumer_key, access_token: @access_token }.dup.merge(params)
   end
 end
 
-@pocket = Pocket.new
+results = []
+
+@pocket = Pocket.new(ENV['CONSUMER_KEY'], ENV['ACCESS_TOKEN'])
 
 @ldr = LDR.new(ENV['LIVEDOOR_ID'], ENV['LIVEDOOR_PASSWORD'])
 @ldr.login
 @ldr.get_all_pins
 @ldr.each_pin do |pin|
-  p pin
-  p['link']
-  p['title']
-  p['title'].encoding
-  CGI.escape(p['link'])
-  CGI.escape(p['title'])
-
-  @pocket.add(p['link'])
+  res = @pocket.add(pin['link'])
+  results << (res.code.to_i == 200)
 end
+
+@ldr.clear_all_pins if results.all?
